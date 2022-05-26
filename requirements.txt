@@ -1,0 +1,7 @@
+eth_typing==2.3.0
+eth_utils==1.10.0
+loguru==0.6.0
+names==0.3.0
+python-dotenv==0.20.0
+requests==2.27.1
+web3==5.29.1
