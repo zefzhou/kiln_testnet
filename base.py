@@ -81,18 +81,7 @@ def init_contract(w3: Web3, addr: Address, dir: str, abi_name: str):
 
 
 def get_nonce(w3: Web3, addr: Address, chain_id: str = None):
-    global nonces
-    if chain_id is None:
-        chain_id = ''
-    if addr not in nonces:
-        nonces[addr] = {}
-
-    if chain_id not in nonces[addr]:
-        nonce = w3.eth.get_transaction_count(addr, 'pending')
-        nonces[addr][chain_id] = nonce
-    else:
-        nonces[addr][chain_id] += 1
-    return nonces[addr][chain_id]
+    return w3.eth.get_transaction_count(addr, 'pending')
 
 
 def get_default_tx_params(w3: Web3,
