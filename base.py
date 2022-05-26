@@ -90,17 +90,19 @@ def get_default_tx_params(w3: Web3,
                           to: Address = None,
                           data: str = None,
                           val: Wei = Wei(0),
-                          gas: Wei = Wei(100000),
+                          gas: Optional[Wei] = None,
                           gas_price: Optional[Wei] = None):
     if gas_price is None:
         gas_price = w3.eth.gas_price
     tx_params: TxParams = {
         'from': account.address,
         'value': val,
-        'gas': gas,
-        'gasPrice': gas_price,
         'nonce': get_nonce(w3, account.address, chain_id)
     }
+    if gas is not None:
+        tx_params['gas'] = gas
+    if gas_price is not None:
+        tx_params['gasPrice'] = gas_price
     if to is not None:
         tx_params['to'] = to
     if data is not None:
@@ -138,7 +140,7 @@ def send(w3: Web3,
          account: Account,
          chain_id: str = None,
          f: ContractFunction = None,
-         gas: Wei = Wei(100000),
+         gas: Optional[Wei] = None,
          gas_price: Optional[Wei] = None,
          to: Address = None,
          data: str = None,
@@ -154,6 +156,14 @@ def send(w3: Web3,
                                       gas_price=gas_price)
     if f is not None:
         tx_params = f.buildTransaction(transaction=tx_params)
+    if gas is None:
+        gas = w3.eth.estimate_gas(tx_params)
+        logger.info(f'estimated gas limit: {gas}')
+        tx_params['gas'] = gas
+    if gas_price is None:
+        gas_price = w3.eth.gasPrice
+        logger.info(f'estimated gas price: {gas_price/1e9} GWei')
+        tx_params['gasPrice'] = gas_price
     signed_tx = sign_tx(w3=w3, account=account, params=tx_params)
     return send_tx_and_wait_recipt(w3=w3, signed_tx=signed_tx, timeout=timeout)
 

@@ -22,7 +22,7 @@ cp .env.example .env
 .env文件中的 PRIVATE_KEY=xxxx 将xxxx替换为自己的测试钱包私钥
 ```
 
-## 3 运行
+## 3.运行
 ```
 python3 deploy.py
 ```

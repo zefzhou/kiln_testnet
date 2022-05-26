@@ -1,6 +1,4 @@
 from eth_utils.conversions import to_hex
-from eth_typing.evm import ChecksumAddress
-from eth_utils import to_wei
 import web3
 from base import *
 from config import config
@@ -30,8 +28,8 @@ class Contract:
         bytecode = ''
         with open('./Greeter.json', 'r') as f:
             data = json.load(fp=f)
-            abi = data["abi"]
-            bytecode = data["bytecode"]
+            abi = data['abi']
+            bytecode = data['bytecode']
             f.close()
         return abi, bytecode
 
@@ -39,8 +37,6 @@ class Contract:
         receipt, ok = send(w3=self.w3,
                            account=self.account,
                            chain_id=to_hex(1337802),
-                           gas=1000000,
-                           gas_price=to_wei(10, 'gwei'),
                            data=self.bytecode)
         if receipt is None or ok == False:
             return None
@@ -57,11 +53,7 @@ class Contract:
         new_greeting = generateRandomGreeting()
         f = contract.functions.setGreeting(new_greeting)
         print(f'setGreeting for {new_greeting}')
-        send(w3=self.w3,
-             account=self.account,
-             f=f,
-             gas=1000000,
-             gas_price=to_wei(10, 'gwei'))
+        send(w3=self.w3, account=self.account, f=f)
 
 
 if __name__ == '__main__':
