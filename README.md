@@ -1,6 +1,8 @@
 # kiln_testnet
 deploy and interact with your own contracts
 
+测试网gas price一度达到200gwei，导致网络很卡以及单次交互的成本很高，参考[测试网允许调用的api](https://rpc.kiln.themerge.dev/)，合约部署以及调用都用raw data的方式
+
 
 ## 1.获取测试币
 前往 http://kiln-faucet.pk-net.net/ 进行Pow领测试币
@@ -16,7 +18,7 @@ cd kiln_testnet
 pip3 install -r requirements.txt
 ```
 * ### 配置私钥
-新建.env文件
+  新建.env文件
 ```
 cp .env.example .env
 .env文件中的 PRIVATE_KEY=xxxx 将xxxx替换为自己的测试钱包私钥
