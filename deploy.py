@@ -18,7 +18,8 @@ class Contract:
         self.w3, self.account = init_web3_and_account(
             endpoint_name=KILN, private_key=config['PRIVATTE_KEY'])
 
-        self.abi, self.bytecode = self.parseData()
+        self.abi, self.bytecode, self.set_greeting_method_code_tpl = self.parseData(
+        )
         self.name = generateRandomGreeting()
         self.index = index
         self.address = ''
@@ -30,8 +31,9 @@ class Contract:
             data = json.load(fp=f)
             abi = data['abi']
             bytecode = data['bytecode']
+            set_greeting_method_code_tpl = data['setGreetingCodeTemplate']
             f.close()
-        return abi, bytecode
+        return abi, bytecode, set_greeting_method_code_tpl
 
     def deploy(self):
         receipt, ok = send(w3=self.w3,
@@ -46,14 +48,18 @@ class Contract:
     def setGreeting(self):
         if self.address == None:
             return
-        contract = init_contract(w3=self.w3,
-                                 addr=self.address,
-                                 dir='./',
-                                 abi_name='Greeter_abi.json')
+        # reconnect to the provider
+        self.w3, self.account = init_web3_and_account(
+            endpoint_name=KILN, private_key=config['PRIVATTE_KEY'])
         new_greeting = generateRandomGreeting()
-        f = contract.functions.setGreeting(new_greeting)
+        new_greeting_hex = new_greeting.encode("utf-8").hex()
+        data = self.set_greeting_method_code_tpl.format(new_greeting_hex)
         print(f'setGreeting for {new_greeting}')
-        send(w3=self.w3, account=self.account, f=f)
+        send(w3=self.w3,
+             account=self.account,
+             chain_id=to_hex(1337802),
+             to=self.address,
+             data=data)
 
 
 if __name__ == '__main__':

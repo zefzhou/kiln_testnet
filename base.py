@@ -1,4 +1,5 @@
 from typing import Optional, Tuple
+from eth_utils import to_wei
 from eth_utils.conversions import to_hex
 from web3.types import Wei, TxParams
 from web3.contract import ContractFunction
@@ -8,6 +9,7 @@ from pathlib import Path
 import requests
 from loguru import logger
 import time
+import statistics
 
 STATUS = 'status'
 TRANSACTION_HASH = 'transactionHash'
@@ -92,8 +94,7 @@ def get_default_tx_params(w3: Web3,
                           val: Wei = Wei(0),
                           gas: Optional[Wei] = None,
                           gas_price: Optional[Wei] = None):
-    if gas_price is None:
-        gas_price = w3.eth.gas_price
+
     tx_params: TxParams = {
         'from': account.address,
         'value': val,
@@ -156,14 +157,17 @@ def send(w3: Web3,
                                       gas_price=gas_price)
     if f is not None:
         tx_params = f.buildTransaction(transaction=tx_params)
+
+    if gas_price is None:
+        gas_price = w3.eth.gasPrice
+        logger.info(f'estimated gas price: {gas_price/1e9} GWei')
+        tx_params['gasPrice'] = int(2 * gas_price)
+
     if gas is None:
         gas = w3.eth.estimate_gas(tx_params)
         logger.info(f'estimated gas limit: {gas}')
         tx_params['gas'] = gas
-    if gas_price is None:
-        gas_price = w3.eth.gasPrice
-        logger.info(f'estimated gas price: {gas_price/1e9} GWei')
-        tx_params['gasPrice'] = gas_price
+
     signed_tx = sign_tx(w3=w3, account=account, params=tx_params)
     return send_tx_and_wait_recipt(w3=w3, signed_tx=signed_tx, timeout=timeout)
 
